@@ -16,11 +16,11 @@ function calculate() {
   }
 }
 
-// ---- Variable para manejar el estado del reconocimiento ----
+
 let isRecognizing = false;
 let recognition;
 
-// ---- Iniciar reconocimiento de voz continuo ----
+
 function startVoiceRecognition() {
   if (!('webkitSpeechRecognition' in window)) {
     alert("Tu navegador no soporta reconocimiento de voz.");
@@ -28,24 +28,24 @@ function startVoiceRecognition() {
   }
 
   recognition = new webkitSpeechRecognition();
-  recognition.continuous = true; // Modo continuo
+  recognition.continuous = true; 
   recognition.interimResults = false;
-  recognition.lang = "es-ES"; // Configurar en español
+  recognition.lang = "es-ES";
 
   recognition.onstart = function () {
     isRecognizing = true;
     display.value = "Escuchando...";
-    toggleButtons(true); // Actualizar botones
+    toggleButtons(true); 
   };
 
   recognition.onresult = function (event) {
-    const result = event.results[event.results.length - 1][0].transcript; // Último resultado
+    const result = event.results[event.results.length - 1][0].transcript; 
     const parsedResult = parseSpeechToMath(result);
     
-    // Mostrar el resultado parseado
+  
     display.value = parsedResult;
 
-    // Intentar calcular automáticamente si es una expresión válida
+
     try {
       const calcResult = eval(parsedResult);
       if (!isNaN(calcResult)) {
