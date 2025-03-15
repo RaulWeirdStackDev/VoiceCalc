@@ -76,3 +76,14 @@ body{margin: 0;
         border-top: solid 1px hsl(0, 0%, 20%);
         padding: 10px;
     }
+
+   #translate{
+display: flex;
+justify-content: center;
+align-items: center;} 
+#translate a{
+text-decoration: none;}
+    #flag {
+        width: 70px;
+        height: auto
+    }
