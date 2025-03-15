@@ -2,6 +2,7 @@ body{margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
     height: 100vh;
     background-color: hsl(0, 0%, 95%);}
     
@@ -58,5 +59,20 @@ body{margin: 0;
     .operator-btn:active{
         background-color: hsl(35, 100%, 75%)
     }
+
+    #voiceStartButton {
+        margin-inline: 25px; 
+        margin-bottom: 20px;
+    }
     
+    #voiceStopButton {
+        margin-inline: 25px; 
+        margin-bottom: 20px;
+    }
     
+    footer{
+        margin-top: 20px;
+        font-size: 18px;
+        border-top: solid 1px hsl(0, 0%, 20%);
+        padding: 10px;
+    }

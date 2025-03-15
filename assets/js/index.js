@@ -107,13 +107,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // Botón para iniciar
   const voiceStartButton = document.createElement("button");
   voiceStartButton.id = "voiceStartButton";
-  voiceStartButton.innerText = "🎤 Iniciar Voz";
+  voiceStartButton.innerText = "🎤 Grabar";
   voiceStartButton.onclick = startVoiceRecognition;
 
   // Botón para detener
   const voiceStopButton = document.createElement("button");
   voiceStopButton.id = "voiceStopButton";
-  voiceStopButton.innerText = "🛑 Detener Voz";
+  voiceStopButton.innerText = "🛑 Detener";
   voiceStopButton.onclick = stopVoiceRecognition;
   voiceStopButton.disabled = true; // Deshabilitado inicialmente
 
