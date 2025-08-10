@@ -1,11 +1,12 @@
 const display = document.querySelector('#display');
+const message = document.querySelector('#message');
 
 function appendToDisplay(input) {
-  display.value += input;
+  display.value += input;  // corregido: actúa sobre display
 }
 
 function clearDisplay() {
-  display.value = '';
+  display.value = '';      // corregido: limpia display
 }
 
 function calculate() {
@@ -16,35 +17,32 @@ function calculate() {
   }
 }
 
-
 let isRecognizing = false;
 let recognition;
 
-
 function startVoiceRecognition() {
-  if (!('webkitSpeechRecognition' in window)) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
     alert("Tu navegador no soporta reconocimiento de voz.");
     return;
   }
 
-  recognition = new (webkitSpeechRecognition || SpeechRecognition)();
-  recognition.continuous = true; 
+  recognition = new SpeechRecognition();
+  recognition.continuous = false;
   recognition.interimResults = false;
   recognition.lang = "es-ES";
 
   recognition.onstart = function () {
     isRecognizing = true;
-    display.value = "Escuchando...";
-    toggleButtons(true); 
+    message.textContent = "Escuchando...";
+    toggleButtons(true);
   };
 
   recognition.onresult = function (event) {
-    const result = event.results[event.results.length - 1][0].transcript; 
+    const result = event.results[0][0].transcript;
     const parsedResult = parseSpeechToMath(result);
-    
-  
-    display.value = parsedResult;
 
+    display.value = parsedResult;
 
     try {
       const calcResult = eval(parsedResult);
@@ -52,27 +50,27 @@ function startVoiceRecognition() {
         display.value = calcResult;
       }
     } catch (err) {
-      // Si hay error, no hacemos nada, dejamos el texto como está
+      // dejamos el texto reconocido si eval falla
     }
+
+    message.textContent = ""; // limpio mensaje al obtener resultado
   };
 
   recognition.onerror = function (event) {
-    display.value = "Error al reconocer la voz: " + event.error;
+    message.textContent = "Error al reconocer la voz: " + event.error;
   };
 
   recognition.onend = function () {
     if (isRecognizing) {
-      recognition.start(); // Reiniciar si sigue activo
-    } else {
-      display.value = "Reconocimiento detenido";
-      toggleButtons(false); // Actualizar botones
+      message.textContent = "Reconocimiento finalizado.";
+      toggleButtons(false);
+      isRecognizing = false;
     }
   };
 
   recognition.start();
 }
 
-// ---- Detener reconocimiento de voz ----
 function stopVoiceRecognition() {
   if (isRecognizing && recognition) {
     isRecognizing = false;
@@ -80,7 +78,6 @@ function stopVoiceRecognition() {
   }
 }
 
-// ---- Convertir palabras habladas a operadores matemáticos ----
 function parseSpeechToMath(speech) {
   return speech
     .toLowerCase()
@@ -89,10 +86,9 @@ function parseSpeechToMath(speech) {
     .replace(/por/g, "*")
     .replace(/dividido/g, "/")
     .replace(/punto/g, ".")
-    .replace(/\s/g, ""); // Eliminar espacios
+    .replace(/\s/g, "");
 }
 
-// ---- Alternar botones de iniciar/detener ----
 function toggleButtons(isActive) {
   const startButton = document.querySelector("#voiceStartButton");
   const stopButton = document.querySelector("#voiceStopButton");
@@ -100,22 +96,19 @@ function toggleButtons(isActive) {
   stopButton.disabled = !isActive;
 }
 
-// ---- Agregar botones para iniciar y detener el reconocimiento de voz ----
 document.addEventListener("DOMContentLoaded", () => {
   const calculator = document.getElementById("calculator");
 
-  // Botón para iniciar
   const voiceStartButton = document.createElement("button");
   voiceStartButton.id = "voiceStartButton";
   voiceStartButton.innerText = "🎤 Grabar";
   voiceStartButton.onclick = startVoiceRecognition;
 
-  // Botón para detener
   const voiceStopButton = document.createElement("button");
   voiceStopButton.id = "voiceStopButton";
   voiceStopButton.innerText = "🛑 Detener";
   voiceStopButton.onclick = stopVoiceRecognition;
-  voiceStopButton.disabled = true; // Deshabilitado inicialmente
+  voiceStopButton.disabled = true;
 
   calculator.appendChild(voiceStartButton);
   calculator.appendChild(voiceStopButton);
