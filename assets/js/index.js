@@ -27,7 +27,7 @@ function startVoiceRecognition() {
     return;
   }
 
-  recognition = new webkitSpeechRecognition();
+  recognition = new (webkitSpeechRecognition || SpeechRecognition)();
   recognition.continuous = true; 
   recognition.interimResults = false;
   recognition.lang = "es-ES";
