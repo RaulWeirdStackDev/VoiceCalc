@@ -1,96 +1,349 @@
-body {
+* {
+  box-sizing: border-box;
   margin: 0;
+  padding: 0;
+}
+
+body {
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  background-color: hsl(0, 0%, 95%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 8px;
+  overflow: hidden;
+  gap: 6px;
+}
+
+h1 {
+  color: white;
+  font-size: clamp(1.2rem, 3vh, 2rem);
+  margin: 0;
+  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  flex-shrink: 0;
 }
 
 #calculator {
-  font-family: Arial, sans-serif;
-  background-color: hsl(0, 0%, 15%);
-  border-radius: 15px;
-  width: 500px;
-  height: fit-content;
-  margin-bottom: 10px;
+  background: linear-gradient(145deg, #1e1e1e, #2d2d2d);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+  flex-shrink: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#calculator:hover {
+  transform: translateY(-5px);
 }
 
 #display {
-  width: 460px;
-  padding: 20px;
-  font-size: 5rem;
-  text-align: left;
+  width: 100%;
+  padding: 15px 18px;
+  font-size: clamp(1.8rem, 5vh, 3rem);
+  text-align: right;
   border: none;
-  color: white;
-  background-color: hsl(0, 0%, 20%);
+  color: #ffffff;
+  background: linear-gradient(135deg, #434343 0%, #000000 100%);
+  font-family: 'Courier New', monospace;
+  font-weight: 300;
+  letter-spacing: 1px;
+  border-radius: 0;
+  flex-shrink: 0;
+}
+
+#display:focus {
+  outline: none;
+}
+
+#message {
+  min-height: 1.3em;
+  padding: 6px 15px;
+  color: #a0a0a0;
+  font-size: 0.8rem;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
 #keys {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
-  padding: 25px;
+  padding: 15px;
+  background: linear-gradient(145deg, #1e1e1e, #2d2d2d);
+  flex-shrink: 1;
+  min-height: 0;
 }
 
 button {
-  width: 60px;
-  height: 60px;
-  border-radius: 50px;
+  aspect-ratio: 1;
+  border-radius: 10px;
   border: none;
-  background-color: hsl(0, 0%, 30%);
+  background: linear-gradient(145deg, #2a2a2a, #3a3a3a);
   color: white;
-  font-size: 2rem;
-  font-weight: bold;
+  font-size: clamp(1rem, 2.5vh, 1.5rem);
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translate(-50%, -50%);
+  transition: width 0.4s, height 0.4s;
+}
+
+button:hover::before {
+  width: 100%;
+  height: 100%;
 }
 
 button:hover {
-  background-color: hsl(0, 0%, 40%);
+  background: linear-gradient(145deg, #3a3a3a, #4a4a4a);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
 button:active {
-  background-color: hsl(0, 0%, 50%);
+  transform: translateY(1px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .operator-btn {
-  background-color: hsl(35, 100%, 55%);
+  background: linear-gradient(145deg, #ff9500, #ffb143);
+  color: white;
+  font-weight: 700;
 }
 
 .operator-btn:hover {
-  background-color: hsl(35, 100%, 65%);
+  background: linear-gradient(145deg, #ffb143, #ffc266);
 }
 
 .operator-btn:active {
-  background-color: hsl(35, 100%, 75%);
+  background: linear-gradient(145deg, #e68600, #ff9500);
+}
+
+#voiceStartButton,
+#voiceStopButton {
+  width: calc(50% - 10px);
+  aspect-ratio: auto;
+  height: 40px;
+  margin: 0;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
 #voiceStartButton {
-  margin-inline: 25px;
-  margin-bottom: 20px;
+  background: linear-gradient(145deg, #4CAF50, #45a049);
+  margin-left: 15px;
+  margin-right: 5px;
+  margin-bottom: 15px;
+}
+
+#voiceStartButton:hover {
+  background: linear-gradient(145deg, #45a049, #3d8b40);
+  box-shadow: 0 6px 25px rgba(76, 175, 80, 0.4);
+}
+
+#voiceStartButton:disabled {
+  background: linear-gradient(145deg, #555, #666);
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 #voiceStopButton {
-  margin-inline: 25px;
-  margin-bottom: 20px;
+  background: linear-gradient(145deg, #f44336, #da190b);
+  margin-right: 15px;
+  margin-left: 5px;
+  margin-bottom: 15px;
+}
+
+#voiceStopButton:hover:not(:disabled) {
+  background: linear-gradient(145deg, #da190b, #c1170a);
+  box-shadow: 0 6px 25px rgba(244, 67, 54, 0.4);
+}
+
+#voiceStopButton:disabled {
+  background: linear-gradient(145deg, #555, #666);
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 footer {
-  margin-top: 20px;
-  font-size: 18px;
-  border-top: solid 1px hsl(0, 0%, 20%);
-  padding: 10px;
+  margin: 0;
+  font-size: clamp(0.7rem, 1.5vh, 0.85rem);
+  color: white;
+  text-align: center;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
 }
 
 #translate {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 0;
+  flex-shrink: 0;
 }
+
 #translate a {
   text-decoration: none;
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 6px 12px;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: clamp(0.7rem, 1.5vh, 0.85rem);
+  transition: all 0.3s ease;
 }
+
+#translate a:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
 #flag {
-  width: 70px;
+  width: 22px;
   height: auto;
+  transition: transform 0.3s ease;
+}
+
+#translate a:hover #flag {
+  transform: scale(1.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  #calculator {
+    max-width: 100%;
+    border-radius: 18px;
+  }
+
+  #keys {
+    gap: 10px;
+    padding: 15px;
+  }
+
+  #display {
+    padding: 18px 15px;
+  }
+
+  #message {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  button {
+    font-size: 1.2rem;
+    border-radius: 10px;
+  }
+
+  #voiceStartButton,
+  #voiceStopButton {
+    height: 42px;
+    font-size: 0.9rem;
+  }
+
+  #voiceStartButton {
+    margin-left: 15px;
+    margin-right: 5px;
+  }
+
+  #voiceStopButton {
+    margin-right: 15px;
+    margin-left: 5px;
+  }
+}
+
+@media (max-width: 360px) {
+  #keys {
+    gap: 8px;
+    padding: 12px;
+  }
+
+  button {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-height: 700px) {
+  body {
+    gap: 4px;
+    padding: 5px;
+  }
+  
+  h1 {
+    font-size: 1.2rem;
+  }
+  
+  #display {
+    padding: 12px 15px;
+    font-size: 1.8rem;
+  }
+  
+  #message {
+    padding: 5px 12px;
+    font-size: 0.75rem;
+  }
+  
+  #keys {
+    gap: 8px;
+    padding: 12px;
+  }
+  
+  button {
+    font-size: 1.1rem;
+  }
+  
+  #voiceStartButton,
+  #voiceStopButton {
+    height: 35px;
+    font-size: 0.8rem;
+    margin-bottom: 12px;
+  }
+  
+  footer, #translate a {
+    padding: 6px 10px;
+    font-size: 0.7rem;
+  }
 }
