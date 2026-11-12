@@ -42,38 +42,18 @@ function startVoiceRecognition() {
   };
 
   recognition.onresult = function (event) {
-    // Obtener el último resultado
-    const lastResultIndex = event.results.length - 1;
-    const result = event.results[lastResultIndex][0].transcript;
-    const parsedResult = parseSpeechToMath(result);
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (!event.results[i].isFinal) continue;
+      const result = event.results[i][0].transcript;
+      const parsedResult = parseSpeechToMath(result);
+      if (parsedResult === null) continue; // Ignorar conversaciones ajenas a la calculadora.
 
-    // Mostrar lo reconocido temporalmente
-    const previousValue = display.value;
-    display.value = parsedResult;
-
-    // Intentar calcular
-    try {
-      const calcResult = eval(parsedResult);
-      if (!isNaN(calcResult)) {
-        display.value = calcResult;
-        message.textContent = `✓ "${result}" = ${calcResult}`;
-        message.style.color = "#4CAF50";
-      } else {
-        display.value = parsedResult;
-      }
-    } catch (err) {
-      // Si no se puede calcular, dejar el texto reconocido
-      message.textContent = `Reconocido: "${result}"`;
-      message.style.color = "#2196F3";
+      const calcResult = evaluateMath(parsedResult);
+      if (calcResult === null) continue;
+      display.value = String(calcResult);
+      message.textContent = `✓ "${result}" = ${calcResult}`;
+      message.style.color = "#4CAF50";
     }
-
-    // Breve pausa visual antes de continuar escuchando
-    setTimeout(() => {
-      if (isRecognizing) {
-        message.textContent = "🎤 Escuchando... (modo continuo)";
-        message.style.color = "#4CAF50";
-      }
-    }, 1500);
   };
 
   recognition.onerror = function (event) {
@@ -120,12 +100,12 @@ function startVoiceRecognition() {
   } catch (err) {
     message.textContent = "Error al iniciar el reconocimiento";
     message.style.color = "#f44336";
-    shouldContinue = false;
+    isRecognizing = false;
   }
 }
 
 function stopVoiceRecognition() {
-  shouldContinue = false;
+  isRecognizing = false;
   if (recognition) {
     recognition.stop();
   }
@@ -134,21 +114,59 @@ function stopVoiceRecognition() {
 }
 
 function parseSpeechToMath(speech) {
-  return speech
-    .toLowerCase()
-    .replace(/más/g, "+")
-    .replace(/menos/g, "-")
-    .replace(/por/g, "*")
-    .replace(/multiplicado por/g, "*")
-    .replace(/dividido entre/g, "/")
-    .replace(/dividido por/g, "/")
-    .replace(/dividido/g, "/")
-    .replace(/entre/g, "/")
-    .replace(/punto/g, ".")
-    .replace(/coma/g, ".")
-    .replace(/igual/g, "")
-    .replace(/es/g, "")
-    .replace(/\s/g, "");
+  // Aceptar únicamente expresiones compuestas de números y operadores conocidos.
+  // No extraer números sueltos de una frase ajena al cálculo.
+  const normalized = speech.toLowerCase().normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[¿?¡!]/g, " ")
+    .trim();
+
+  const tokens = normalized.match(/\d+(?:[.,]\d+)?|[+*/()=-]|[a-z]+/g);
+  if (!tokens || !tokens.length) return null;
+
+  const operators = { mas: "+", menos: "-", por: "*", entre: "/", punto: ".", coma: "." };
+  const words = { cero: 0, uno: 1, una: 1, dos: 2, tres: 3, cuatro: 4,
+    cinco: 5, seis: 6, siete: 7, ocho: 8, nueve: 9, diez: 10,
+    once: 11, doce: 12, trece: 13, catorce: 14, quince: 15,
+    dieciseis: 16, diecisiete: 17, dieciocho: 18, diecinueve: 19,
+    veinte: 20, treinta: 30, cuarenta: 40, cincuenta: 50,
+    sesenta: 60, setenta: 70, ochenta: 80, noventa: 90,
+    cien: 100, ciento: 100, mil: 1000 };
+  const ignored = new Set(["cuanto", "cuantos", "cuanta", "cuantas", "es", "son", "igual", "a", "calcula", "calcular"]);
+  const converted = [];
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    if (ignored.has(token)) continue;
+    if (token === "multiplicado" || token === "dividido") {
+      if (tokens[i + 1] === "por" || tokens[i + 1] === "entre") i++;
+      converted.push(token === "multiplicado" ? "*" : "/");
+    } else if (token in operators) converted.push(operators[token]);
+    else if (token in words) {
+      // Combinar decenas y unidades: treinta y dos -> 32.
+      let value = words[token];
+      if (value >= 20 && value <= 90 && value % 10 === 0 && tokens[i + 1] === "y" && tokens[i + 2] in words && words[tokens[i + 2]] < 10) {
+        value += words[tokens[i + 2]];
+        i += 2;
+      }
+      converted.push(String(value));
+    } else if (/^\d+(?:[.,]\d+)?$/.test(token)) converted.push(token.replace(",", "."));
+    else if (/^[+*/()=-]$/.test(token)) converted.push(token === "=" ? "" : token);
+    else return null;
+  }
+  const expression = converted.join("");
+  // Exigir una expresión completa, no una palabra aislada ni un operador.
+  if (!/^-?\d+(?:\.\d+)?(?:[+*/-]-?\d+(?:\.\d+)?)+$/.test(expression)) return null;
+  return expression;
+}
+
+function evaluateMath(expression) {
+  if (!/^-?\d+(?:\.\d+)?(?:[+*/-]-?\d+(?:\.\d+)?)+$/.test(expression)) return null;
+  try {
+    const result = Function(`"use strict"; return (${expression})`)();
+    return Number.isFinite(result) ? result : null;
+  } catch (_) {
+    return null;
+  }
 }
 
 function toggleButtons(isActive) {
